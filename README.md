@@ -135,8 +135,8 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag amazon-prime amonkincloud/amazon-prime:latest "
-                        sh "docker push amonkincloud/amazon-prime:latest "
+                        sh "docker tag amazon-prime mohamedaminehamdi/amazon-prime:latest "
+                        sh "docker push mohamedaminehamdi/amazon-prime:latest "
                     }
                 }
             }
@@ -145,16 +145,16 @@ pipeline {
             steps {
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
-                       sh 'docker-scout quickview amonkincloud/amazon-prime:latest'
-                       sh 'docker-scout cves amonkincloud/amazon-prime:latest'
-                       sh 'docker-scout recommendations amonkincloud/amazon-prime:latest'
+                       sh 'docker-scout quickview mohamedaminehamdi/amazon-prime:latest'
+                       sh 'docker-scout cves mohamedaminehamdi/amazon-prime:latest'
+                       sh 'docker-scout recommendations mohamedaminehamdi/amazon-prime:latest'
                    }
                 }
             }
         }
         stage ("Deploy to Conatiner") {
             steps {
-                sh 'docker run -d --name amazon-prime -p 3000:3000 amonkincloud/amazon-prime:latest'
+                sh 'docker run -d --name amazon-prime -p 3000:3000 mohamedaminehamdi/amazon-prime:latest'
             }
         }
     }

@@ -70,7 +70,8 @@ docker login       `Give Dockerhub credentials here`
 curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s -- -b /usr/local/bin
 ```
 # Deployment Stages:
-<img width="966" alt="Screenshot 2024-09-15 at 7 20 49 AM" src="https://github.com/user-attachments/assets/ddb5e618-79ab-49b3-8f13-b5114824eec3">
+![Deployment Stages](https://github.com/mohamedaminehamdi/amazon-prime-clone-deployment/blob/main/assets/Capture.PNG)
+
 
 
 # Jenkins Complete pipeline

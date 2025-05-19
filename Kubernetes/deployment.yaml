@@ -6,6 +6,8 @@ metadata:
     app: prime-app
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       app: prime-app

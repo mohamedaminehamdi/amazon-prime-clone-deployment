@@ -2,7 +2,7 @@
 
 ![Prime Clone Deployment](https://github.com/user-attachments/assets/7ad59495-e514-44bd-a03c-1cb29edca2c4)
 
-# **Give execute permissions .sh files**
+# **Give execute permissions .sh files in appserver**
 
 ```
 git clone https://github.com/mohamedaminehamdi/amazon-prime-clone-deployment.git
@@ -79,171 +79,50 @@ curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | 
 # Deployment Stages:
 ![Deployment Stages](https://github.com/mohamedaminehamdi/amazon-prime-clone-deployment/blob/main/assets/Capture.PNG)
 
+# **Provision the eks cluster:**
 
+```
+aws configure
+cd ..
+chmod +x create-eks-cluster.sh
+sh create-eks-cluster.sh
+```
 
-# Jenkins Complete pipeline
+# **CD Pipeline:**
+
+```
+sudo -su jenkins
+aws configure
+cat amazon-prime-clone-deployment/Kubernetes/jenkinsfile
+```
+
+**Monitoring**
+# **Give execute permissions .sh files in appserver**
+
+```
+cd amazon-prime-clone-deployment/scripts/monitoring
+chmod +x permissionexecute.sh
+sh permissionexecute.sh
 ```
 
 
-```
-**Phase 4: Monitoring**
+1. **Install Prometheus :**
 
-1. **Install Prometheus and Grafana:**
+    ```
+    sh prometheus.sh
+    ``` 
 
-   Set up Prometheus and Grafana to monitor your application.
+    <your-monitoring-server-ip>:9090
 
-   **Installing Prometheus:**
+2. **Installing Node Exporter :**
 
-   First, create a dedicated Linux user for Prometheus and download Prometheus:
-
-   ```bash
-   sudo useradd --system --no-create-home --shell /bin/false prometheus
-   wget https://github.com/prometheus/prometheus/releases/download/v2.47.1/prometheus-2.47.1.linux-amd64.tar.gz
-   ```
-
-   Extract Prometheus files, move them, and create directories:
-
-   ```bash
-   tar -xvf prometheus-2.47.1.linux-amd64.tar.gz
-   cd prometheus-2.47.1.linux-amd64/
-   sudo mkdir -p /data /etc/prometheus
-   sudo mv prometheus promtool /usr/local/bin/
-   sudo mv consoles/ console_libraries/ /etc/prometheus/
-   sudo mv prometheus.yml /etc/prometheus/prometheus.yml
-   ```
-
-   Set ownership for directories:
-
-   ```bash
-   sudo chown -R prometheus:prometheus /etc/prometheus/ /data/
-   ```
-
-   Create a systemd unit configuration file for Prometheus:
-
-   ```bash
-   sudo nano /etc/systemd/system/prometheus.service
-   ```
-
-   Add the following content to the `prometheus.service` file:
-
-   ```plaintext
-   [Unit]
-   Description=Prometheus
-   Wants=network-online.target
-   After=network-online.target
-
-   StartLimitIntervalSec=500
-   StartLimitBurst=5
-
-   [Service]
-   User=prometheus
-   Group=prometheus
-   Type=simple
-   Restart=on-failure
-   RestartSec=5s
-   ExecStart=/usr/local/bin/prometheus \
-     --config.file=/etc/prometheus/prometheus.yml \
-     --storage.tsdb.path=/data \
-     --web.console.templates=/etc/prometheus/consoles \
-     --web.console.libraries=/etc/prometheus/console_libraries \
-     --web.listen-address=0.0.0.0:9090 \
-     --web.enable-lifecycle
-
-   [Install]
-   WantedBy=multi-user.target
-   ```
-
-   Here's a brief explanation of the key parts in this `prometheus.service` file:
-
-   - `User` and `Group` specify the Linux user and group under which Prometheus will run.
-
-   - `ExecStart` is where you specify the Prometheus binary path, the location of the configuration file (`prometheus.yml`), the storage directory, and other settings.
-
-   - `web.listen-address` configures Prometheus to listen on all network interfaces on port 9090.
-
-   - `web.enable-lifecycle` allows for management of Prometheus through API calls.
-
-   Enable and start Prometheus:
-
-   ```bash
-   sudo systemctl enable prometheus
-   sudo systemctl start prometheus
-   ```
-
-   Verify Prometheus's status:
-
-   ```bash
-   sudo systemctl status prometheus
-   ```
-
-   You can access Prometheus in a web browser using your server's IP and port 9090:
-
-   `http://<your-server-ip>:9090`
-
-   **Installing Node Exporter:**
-
-   Create a system user for Node Exporter and download Node Exporter:
-
-   ```bash
-   sudo useradd --system --no-create-home --shell /bin/false node_exporter
-   wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
-   ```
-
-   Extract Node Exporter files, move the binary, and clean up:
-
-   ```bash
-   tar -xvf node_exporter-1.6.1.linux-amd64.tar.gz
-   sudo mv node_exporter-1.6.1.linux-amd64/node_exporter /usr/local/bin/
-   rm -rf node_exporter*
-   ```
-
-   Create a systemd unit configuration file for Node Exporter:
-
-   ```bash
-   sudo nano /etc/systemd/system/node_exporter.service
-   ```
-
-   Add the following content to the `node_exporter.service` file:
-
-   ```plaintext
-   [Unit]
-   Description=Node Exporter
-   Wants=network-online.target
-   After=network-online.target
-
-   StartLimitIntervalSec=500
-   StartLimitBurst=5
-
-   [Service]
-   User=node_exporter
-   Group=node_exporter
-   Type=simple
-   Restart=on-failure
-   RestartSec=5s
-   ExecStart=/usr/local/bin/node_exporter --collector.logind
-
-   [Install]
-   WantedBy=multi-user.target
-   ```
-
-   Replace `--collector.logind` with any additional flags as needed.
-
-   Enable and start Node Exporter:
-
-   ```bash
-   sudo systemctl enable node_exporter
-   sudo systemctl start node_exporter
-   ```
-
-   Verify the Node Exporter's status:
-
-   ```bash
-   sudo systemctl status node_exporter
-   ```
+    ```bash
+    sh nodeExporter.sh
+    ```
 
    You can access Node Exporter metrics in Prometheus.
 
-2. **Configure Prometheus Plugin Integration:**
+3. **Configure Prometheus Plugin Integration:**
 
    Integrate Jenkins with Prometheus to monitor the CI/CD pipeline.
 
@@ -285,71 +164,11 @@ curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | 
    `http://<your-prometheus-ip>:9090/targets`
 
 
-####Grafana
+2. **Installing Grafana :**
 
-**Install Grafana on Ubuntu 22.04 and Set it up to Work with Prometheus**
-
-**Step 1: Install Dependencies:**
-
-First, ensure that all necessary dependencies are installed:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y apt-transport-https software-properties-common
-```
-
-**Step 2: Add the GPG Key:**
-
-Add the GPG key for Grafana:
-
-```bash
-wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-```
-
-**Step 3: Add Grafana Repository:**
-
-Add the repository for Grafana stable releases:
-
-```bash
-echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
-```
-
-**Step 4: Update and Install Grafana:**
-
-Update the package list and install Grafana:
-
-```bash
-sudo apt-get update
-sudo apt-get -y install grafana
-```
-
-**Step 5: Enable and Start Grafana Service:**
-
-To automatically start Grafana after a reboot, enable the service:
-
-```bash
-sudo systemctl enable grafana-server
-```
-
-Then, start Grafana:
-
-```bash
-sudo systemctl start grafana-server
-```
-
-**Step 6: Check Grafana Status:**
-
-Verify the status of the Grafana service to ensure it's running correctly:
-
-```bash
-sudo systemctl status grafana-server
-```
-
-**Step 7: Access Grafana Web Interface:**
-
-Open a web browser and navigate to Grafana using your server's IP address. The default port for Grafana is 3000. For example:
-
-`http://<your-server-ip>:3000`
+    ```bash
+    sh grafana.sh
+    ```
 
 ## Monitor Kubernetes with Prometheus
 
@@ -415,7 +234,7 @@ To deploy an application with ArgoCD, you can follow these steps, which I'll out
 4. **Access your Application**
    - To Access the app make sure port 30007 is open in your security group and then open a new tab paste your NodeIP:30007, your app should be running.
 
-**Phase 7: Cleanup**
+**Cleanup**
 
 1. **Cleanup AWS EC2 Instances:**
     - Terminate AWS EC2 instances that are no longer needed.

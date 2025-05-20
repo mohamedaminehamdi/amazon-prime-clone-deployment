@@ -50,7 +50,7 @@ sh awscli.sh
 sh jenkins.sh
 ```
 
-<app-server-public-ip>:8080
+`http://<app-server-public-ip>:8080`
 
 ```
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
@@ -69,7 +69,7 @@ docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 docker ps
 ```
 
-<app-server-public-ip>:9000
+`http://<app-server-public-ip>:9000`
 
 # **Install Trivy on Ubuntu:**
 
@@ -139,7 +139,7 @@ sh permissionexecute.sh
     sh prometheus.sh
     ``` 
 
-    <your-monitoring-server-ip>:9090
+    `http://<your-monitoring-server-ip>:9090`
 
 2. **Installing Node Exporter :**
 
